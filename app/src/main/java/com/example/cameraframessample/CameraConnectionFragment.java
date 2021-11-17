@@ -106,6 +106,29 @@ public class CameraConnectionFragment extends Fragment {
 
     //
     private final ConnectionCallback cameraConnectionCallback;
+
+    public static CameraConnectionFragment newInstance(
+            final ConnectionCallback callback,
+            final OnImageAvailableListener imageListener,
+            final int layout,
+            final Size inputSize) {
+        Log.v(TAG, "Inside CameraConnectionFragment newInstance" );
+        return new CameraConnectionFragment(callback, imageListener, layout, inputSize);
+    }
+    @SuppressLint("ValidFragment")
+    private CameraConnectionFragment(
+            final ConnectionCallback connectionCallback,
+            final OnImageAvailableListener imageListener,
+            final int layout,
+            final Size inputSize) {
+        Log.v(TAG, "Inside CameraConnectionFragment constructor" );
+        this.cameraConnectionCallback = connectionCallback;
+        this.imageListener = imageListener;
+        this.layout = layout;
+        this.inputSize = inputSize;
+        Log.v(TAG, "Inside CameraConnectionFragment constructor exiting..." );
+    }
+
     private final CameraCaptureSession.CaptureCallback captureCallback =
             new CameraCaptureSession.CaptureCallback() {
                 @Override
@@ -115,7 +138,6 @@ public class CameraConnectionFragment extends Fragment {
                         final CaptureResult partialResult) {
                     Log.v(TAG, "Inside CameraCaptureSession.CaptureCallback,onCaptureProgressed" );
                 }
-
                 @Override
                 public void onCaptureCompleted(
                         final CameraCaptureSession session,
@@ -136,7 +158,6 @@ public class CameraConnectionFragment extends Fragment {
                     openCamera(width, height);
                     Log.v(TAG, "Inside surfaceTextureListener, onSurfaceTextureAvailable exiting..." );
                 }
-
                 @Override
                 public void onSurfaceTextureSizeChanged(
                         final SurfaceTexture texture, final int width, final int height) {
@@ -145,13 +166,11 @@ public class CameraConnectionFragment extends Fragment {
                     configureTransform(width, height);
                     Log.v(TAG, "Inside surfaceTextureListener, onSurfaceTextureSizeChanged exiting..." );
                 }
-
                 @Override
                 public boolean onSurfaceTextureDestroyed(final SurfaceTexture texture) {
                     Log.v(TAG, "Inside surfaceTextureListener,onSurfaceTextureDestroyed" );
                     return true;
                 }
-
                 @Override
                 public void onSurfaceTextureUpdated(final SurfaceTexture texture) {
                 }
@@ -167,6 +186,7 @@ public class CameraConnectionFragment extends Fragment {
                     Log.v(TAG, "Inside CameraDevice.StateCallback,onOpened cameraOpenCloseLock.release" );
                     cameraOpenCloseLock.release();
                     cameraDevice = cd;
+
                     Log.v(TAG, "Inside CameraDevice.StateCallback,onOpened createCameraPreviewSession" );
                     createCameraPreviewSession();
                     Log.v(TAG, "Inside CameraDevice.StateCallback,onOpened exiting.." );
@@ -192,27 +212,7 @@ public class CameraConnectionFragment extends Fragment {
                     }
                 }
             };
-    public static CameraConnectionFragment newInstance(
-            final ConnectionCallback callback,
-            final OnImageAvailableListener imageListener,
-            final int layout,
-            final Size inputSize) {
-        Log.v(TAG, "Inside CameraConnectionFragment newInstance" );
-        return new CameraConnectionFragment(callback, imageListener, layout, inputSize);
-    }
-    @SuppressLint("ValidFragment")
-    private CameraConnectionFragment(
-            final ConnectionCallback connectionCallback,
-            final OnImageAvailableListener imageListener,
-            final int layout,
-            final Size inputSize) {
-        Log.v(TAG, "Inside CameraConnectionFragment constructor" );
-        this.cameraConnectionCallback = connectionCallback;
-        this.imageListener = imageListener;
-        this.layout = layout;
-        this.inputSize = inputSize;
-        Log.v(TAG, "Inside CameraConnectionFragment constructor exiting..." );
-    }
+
 
     /**
      * Given {@code choices} of {@code Size}s supported by a camera, chooses the smallest one whose
@@ -260,11 +260,8 @@ public class CameraConnectionFragment extends Fragment {
         }
     }
 
-
-
     /**
      * Shows a {@link Toast} on the UI thread.
-     *
      * @param text The message to show
      */
     private void showToast(final String text) {
@@ -476,13 +473,16 @@ public class CameraConnectionFragment extends Fragment {
             Log.v(TAG, "Inside createCameraPreviewSession SurfaceTexture is set" );
             final SurfaceTexture texture = textureView.getSurfaceTexture();
             assert texture != null;
+
             Log.v(TAG, "Inside createCameraPreviewSession texture.setDefaultBufferSize" );
             // We configure the size of default buffer to be the size of camera preview we want.
             texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
             Log.v(TAG, "Inside createCameraPreviewSession width: "+previewSize.getWidth()+ " height: "+previewSize.getHeight() );
             // This is the output Surface we need to start preview.
+
             Log.v(TAG, "Inside createCameraPreviewSession surface set" );
             final Surface surface = new Surface(texture);
+
             Log.v(TAG, "Inside createCameraPreviewSession previewRequestBuilder" );
             // We set up a CaptureRequest.Builder with the output Surface.
             previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
@@ -500,6 +500,7 @@ public class CameraConnectionFragment extends Fragment {
             Log.v(TAG, "Inside createCameraPreviewSession  previewRequestBuilder.addTarget" );
             previewRequestBuilder.addTarget(previewReader.getSurface());
             Log.v(TAG, "Inside createCameraPreviewSession cameraDevice.createCaptureSession" );
+
             // Here, we create a CameraCaptureSession for camera preview.
             cameraDevice.createCaptureSession(
                     Arrays.asList(surface, previewReader.getSurface()),

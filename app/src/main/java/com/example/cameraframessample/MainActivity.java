@@ -9,6 +9,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.media.Image;
@@ -18,6 +20,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import java.nio.ByteBuffer;
 
@@ -40,16 +44,31 @@ public class MainActivity extends AppCompatActivity implements ImageReader.OnIma
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Log.v(TAG, "OnCreate" );
         //TODO ask for camera permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.v(TAG, "Inside oncreate: ask permissions" );
+            Log.v(TAG, "Inside onCreate: ask permissions" );
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.CAMERA}, 121);
         } else {
             //TODO show live camera footage
             Log.v(TAG, "Inside OnCreate: setFragment called" );
             setFragment();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //TODO show live camera footage
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            //TODO show live camera footage
+            Log.v(TAG, "Inside onRequestPermissionsResult" );
+            setFragment();
+            Log.v(TAG, "Inside onRequestPermissionsResult finished calling setFragment" );
+        } else {
+            finish();
         }
     }
 
@@ -102,19 +121,6 @@ public class MainActivity extends AppCompatActivity implements ImageReader.OnIma
                 return 90;
             default:
                 return 0;
-        }
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //TODO show live camera footage
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            //TODO show live camera footage
-            Log.v(TAG, "Inside onRequestPermissionsResult" );
-            setFragment();
-            Log.v(TAG, "Inside onRequestPermissionsResult finished calling setFragment" );
-        } else {
-            finish();
         }
     }
 
@@ -207,7 +213,9 @@ public class MainActivity extends AppCompatActivity implements ImageReader.OnIma
 
         Log.v(TAG, "Inside processImage rgbFrameBitmap.setPixels" );
         rgbFrameBitmap.setPixels(rgbBytes, 0, previewWidth, 0, 0, previewWidth, previewHeight);
-
+        ImageView imageView = findViewById(R.id.container2);
+        Drawable d = new BitmapDrawable(rgbFrameBitmap);
+        imageView.setImageDrawable(d);
         //Now to pass these frame as input buffer to the other device.
         //conversion of bitmap to Byte array
         Log.v(TAG, "Inside processImage" );
