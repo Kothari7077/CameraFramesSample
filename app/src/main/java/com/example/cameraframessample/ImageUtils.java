@@ -90,11 +90,11 @@ public class ImageUtils {
 
     private static int YUV2RGB(int y, int u, int v) {
         // Adjust and check YUV values
-        Log.v(TAG, "Inside YUV2RGB" );
+        //Log.v(TAG, "Inside YUV2RGB" );
         y = Math.max((y - 16), 0);
         u -= 128;
         v -= 128;
-        Log.v(TAG, "Inside YUV2RGB y=" + y +" u=" + u + " v=" + v );
+       // Log.v(TAG, "Inside YUV2RGB y=" + y +" u=" + u + " v=" + v );
         // This is the floating point equivalent. We do the conversion in integer
         // because some Android devices do not have floating point in hardware.
         // nR = (int)(1.164 * nY + 2.018 * nU);
@@ -104,12 +104,12 @@ public class ImageUtils {
         int r = (y1192 + 1634 * v);
         int g = (y1192 - 833 * v - 400 * u);
         int b = (y1192 + 2066 * u);
-        Log.v(TAG, "Inside YUV2RGB r=" + r +" g=" + g + " b=" + b  );
+        //Log.v(TAG, "Inside YUV2RGB r=" + r +" g=" + g + " b=" + b  );
         // Clipping RGB values to be inside boundaries [ 0 , kMaxChannelValue ]
         r = r > kMaxChannelValue ? kMaxChannelValue : (Math.max(r, 0));
         g = g > kMaxChannelValue ? kMaxChannelValue : (Math.max(g, 0));
         b = b > kMaxChannelValue ? kMaxChannelValue : (Math.max(b, 0));
-        Log.v(TAG, "Inside YUV2RGB after Clipping rgb values r=" + r +" g=" + g + " b=" + b  );
+        //Log.v(TAG, "Inside YUV2RGB after Clipping rgb values r=" + r +" g=" + g + " b=" + b  );
         return 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((b >> 10) & 0xff);
     }
 
