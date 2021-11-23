@@ -129,12 +129,6 @@ public class MainActivity extends AppCompatActivity implements ImageReader.OnIma
     @Override
     public void onImageAvailable(ImageReader reader) {
 
-//        Image mImage = reader.acquireNextImage();
-//        ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
-//        final byte[] bytes = new byte[buffer.remaining()];
-//        buffer.get(bytes);
-//        mImage.close();
-
         Log.v(TAG, "Inside onImageAvailable" );
         // We need wait until we have some size from onPreviewSizeChosen
         if (previewWidth == 0 || previewHeight == 0) {
@@ -154,11 +148,6 @@ public class MainActivity extends AppCompatActivity implements ImageReader.OnIma
                 return;
             }
 
-//            if (isProcessingFrame) {
-//                Log.v(TAG, "Inside onImageAvailable isProcessing is true" );
-//                image.close();
-//                return;
-//            }
             isProcessingFrame = true;
             final Image.Plane[] planes = image.getPlanes();
 
@@ -209,101 +198,8 @@ public class MainActivity extends AppCompatActivity implements ImageReader.OnIma
             Log.d("tryError",e.getMessage());
             return;
         }
-        onImageAvailable2(reader);
     }
 
-    public void onImageAvailable2(ImageReader reader) {
-
-//        Image mImage = reader.acquireNextImage();
-//        ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
-//        final byte[] bytes = new byte[buffer.remaining()];
-//        buffer.get(bytes);
-//        mImage.close();
-
-
-//        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-//        byte[] bytes = new byte[buffer.remaining()];
-//        buffer.get(bytes);
-//        Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length,null);
-//        imageView.setImageBitmap(myBitmap);
-
-
-        Log.v(TAG, "Inside onImageAvailable2" );
-        // We need wait until we have some size from onPreviewSizeChosen
-        if (previewWidth == 0 || previewHeight == 0) {
-            Log.v(TAG, "Inside onImageAvailable2 "+" previewWidth: "+previewWidth+ " previewHeight: "+previewHeight );
-            return;
-        }
-        if (rgbBytes == null) {
-            rgbBytes = new int[previewWidth * previewHeight];
-            Log.v(TAG, "Inside onImageAvailable2 rgbBytes" );
-        }
-        try {
-            Log.v(TAG, "Inside onImageAvailable2, try block" );
-            final Image image = reader.acquireNextImage();
-
-            if (image == null) {
-                Log.v(TAG, "Inside onImageAvailable2 image==null" );
-                return;
-            }
-
-            if (isProcessingFrame) {
-                Log.v(TAG, "Inside onImageAvailable2 isProcessing is true" );
-                image.close();
-                return;
-            }
-            isProcessingFrame = true;
-            final Image.Plane[] planes = image.getPlanes();
-
-            Log.v(TAG, "Inside onImageAvailable2" + " fillBytes function is called" );
-            fillBytes(planes, yuvBytes);
-            Log.v(TAG, "Inside onImageAvailable2,fillBytes function exiting..." );
-
-            yRowStride = planes[0].getRowStride();
-            Log.v(TAG, "Inside onImageAvailable2" +" yRowStride: "+ yRowStride);
-            final int uvRowStride = planes[1].getRowStride();
-            Log.v(TAG, "Inside onImageAvailable2 uvRowStride: " +uvRowStride);
-            final int uvPixelStride = planes[1].getPixelStride();
-            Log.v(TAG, "Inside onImageAvailable2 uvPixelStride: " + uvPixelStride);
-
-            imageConverter =
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.v(TAG, "Inside onImageAvailable2,imageConverter run ->ImageUtils.convertYUV420ToARGB8888 called" );
-                            ImageUtils.convertYUV420ToARGB8888(
-                                    yuvBytes[0],
-                                    yuvBytes[1],
-                                    yuvBytes[2],
-                                    previewWidth,
-                                    previewHeight,
-                                    yRowStride,
-                                    uvRowStride,
-                                    uvPixelStride,
-                                    rgbBytes);
-                            Log.v(TAG, "Inside onImageAvailable2,imageConverter run exiting..." );
-                        }
-                    };
-            postInferenceCallback =
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.v(TAG, "Inside onImageAvailable2, PostInterferenceCallback" );
-                            image.close();
-                            isProcessingFrame = false;
-                            Log.v(TAG, "Inside onImageAvailable2, PostInterferenceCallBack exiting.." );
-                        }
-                    };
-
-            Log.v(TAG, "Inside onImageAvailable2 processImage function called" );
-            processImage();
-            Log.v(TAG, "Inside onImageAvailable2 end of try block" );
-        } catch (final Exception e) {
-            Log.d("tryError",e.getMessage());
-            return;
-        }
-        onImageAvailable2(reader);
-    }
     private void processImage() {
         Log.v(TAG, "Inside processImage imageConverter.run" );
 

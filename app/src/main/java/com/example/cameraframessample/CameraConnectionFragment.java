@@ -213,16 +213,6 @@ public class CameraConnectionFragment extends Fragment {
                 }
             };
 
-
-    /**
-     * Given {@code choices} of {@code Size}s supported by a camera, chooses the smallest one whose
-     * width and height are at least as large as the minimum of both, or an exact match if possible.
-     *
-     * @param choices The list of sizes that the camera supports for the intended output class
-     * @param width The minimum desired width
-     * @param height The minimum desired height
-     * @return The optimal {@code Size}, or an arbitrary one if none were big enough
-     */
     protected static Size chooseOptimalSize(final Size[] choices, final int width, final int height) {
         Log.v(TAG, "Inside chooseOptimalSize" );
         final int minSize = Math.max(Math.min(width, height), MINIMUM_PREVIEW_SIZE);
@@ -252,18 +242,12 @@ public class CameraConnectionFragment extends Fragment {
         // Pick the smallest of those, assuming we found any
         if (bigEnough.size() > 0) {
             final Size chosenSize = Collections.min(bigEnough, new CompareSizesByArea());
-            // LOGGER.i("Chosen size: " + chosenSize.getWidth() + "x" + chosenSize.getHeight());
             return chosenSize;
         } else {
-            // LOGGER.e("Couldn't find any suitable preview size");
             return choices[0];
         }
     }
 
-    /**
-     * Shows a {@link Toast} on the UI thread.
-     * @param text The message to show
-     */
     private void showToast(final String text) {
         final Activity activity = getActivity();
         if (activity != null) {
@@ -301,10 +285,6 @@ public class CameraConnectionFragment extends Fragment {
         super.onResume();
         startBackgroundThread();
 
-        // When the screen is turned off and turned back on, the SurfaceTexture is already
-        // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
-        // a camera and start preview from here (otherwise, we wait until the surface is ready in
-        // the SurfaceTextureListener).
         if (textureView.isAvailable()) {
             Log.v(TAG, "Inside onResume, if part then calling openCamera" );
             openCamera(textureView.getWidth(), textureView.getHeight());
@@ -341,9 +321,6 @@ public class CameraConnectionFragment extends Fragment {
             Log.v(TAG, "Inside SetUpCameraOutputs sensorOrientation" );
             sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
 
-            // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
-            // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
-            // garbage capture data.
             Log.v(TAG, "Inside SetUpCameraOutputs previewSize" );
             previewSize =
                     chooseOptimalSize(
@@ -362,10 +339,7 @@ public class CameraConnectionFragment extends Fragment {
                 textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
             }
         } catch (final CameraAccessException e) {
-            //  LOGGER.e(e, "Exception!");
         } catch (final NullPointerException e) {
-            // Currently an NPE is thrown when the Camera2API is used but not supported on the
-            // device this code runs.
             ErrorDialog.newInstance("getString(R.string.tfe_ic_camera_error)")
                     .show(getChildFragmentManager(), FRAGMENT_DIALOG);
             throw new IllegalStateException("getString(R.string.tfe_ic_camera_error)");
@@ -393,14 +367,7 @@ public class CameraConnectionFragment extends Fragment {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
+               return;
             }
             Log.v(TAG, "Inside openCamera manager.openCamera" );
             manager.openCamera(cameraId, stateCallback, backgroundHandler);
@@ -488,9 +455,6 @@ public class CameraConnectionFragment extends Fragment {
             previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             previewRequestBuilder.addTarget(surface);
             Log.v(TAG, "Inside createCameraPreviewSession added target surface" );
-            // LOGGER.i("Opening camera preview: " + previewSize.getWidth() + "x" + previewSize.getHeight());
-
-            // Create the reader for the preview frames.
             Log.v(TAG, "Inside createCameraPreviewSession previewReader" );
             previewReader =
                     ImageReader.newInstance(
@@ -550,13 +514,6 @@ public class CameraConnectionFragment extends Fragment {
         }
     }
 
-    /**Configures the necessary {@link Matrix} transformation to `mTextureView`. This method should be
-     * called after the camera preview size is determined in setUpCameraOutputs and also the size of
-     * `mTextureView` is fixed.
-     *
-     * @param viewWidth The width of `mTextureView`
-     * @param viewHeight The height of `mTextureView`
-     */
     private void configureTransform(final int viewWidth, final int viewHeight) {
         Log.v(TAG, "Inside configureTransform" );
         final Activity activity = getActivity();
@@ -589,10 +546,6 @@ public class CameraConnectionFragment extends Fragment {
         textureView.setTransform(matrix);
     }
 
-    /**
-     * Callback for Activities to use to initialize their data once the selected preview size is
-     * known.
-     */
     public interface ConnectionCallback {
 
         void onPreviewSizeChosen(Size size, int cameraRotation);
